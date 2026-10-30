@@ -1,0 +1,21 @@
+# Xiaomi MiTV2S-48 (gladiator), Android 5.1.1, build 7.6.20.2492, China PatchWall
+# Batch 1: telemetry, ads, shopping and promo content.
+#
+# Apply: TV_HOST=<tv ip> scripts/hide.sh lists/01-ads-telemetry.txt
+# Undo:  TV_HOST=<tv ip> scripts/unhide.sh lists/01-ads-telemetry.txt
+#
+# Every line is HIDDEN (pm hide --user 0), never uninstalled: this firmware refuses
+# `pm disable-user` for every package with a SecurityException, `pm hide` is accepted, survives a
+# reboot and is undone with `pm unhide`. See docs/mitv2s-48.md.
+
+com.miui.tv.analytics              # Xiaomi TV analytics
+com.xiaomi.statistic               # MiTVStat
+com.xiaomi.devicereport            # device report uploader
+com.xiaomi.mitv.osstatistic        # MiTVOSStatistic
+com.xiaomi.mitv.kuyun.acr          # Kuyun audience measurement
+com.kuyun.common.androidtv         # Kuyun content/ad cards
+com.miui.systemAdSolution          # Xiaomi system ad SDK
+com.xm.webcontent                  # promo/content web views on the stock home
+com.mitv.shoplugin                 # TV Taobao shopping channel
+com.xiaomi.mitv.shop               # Xiaomi TV shop
+com.cleanmaster.sdk                # Cleanmaster SDK ("cleaner" nag)

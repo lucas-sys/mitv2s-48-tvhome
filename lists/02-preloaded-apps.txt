@@ -1,0 +1,35 @@
+# Xiaomi MiTV2S-48 (gladiator), Android 5.1.1, build 7.6.20.2492, China PatchWall
+# Batch 2: preloaded apps not used on this set (the owner keeps only 云视听小电视 and 影视仓).
+#
+# Apply: TV_HOST=<tv ip> scripts/hide.sh lists/02-preloaded-apps.txt
+# Undo:  TV_HOST=<tv ip> scripts/unhide.sh lists/02-preloaded-apps.txt
+#
+# Hidden (pm hide --user 0), never uninstalled. Comment a line out to keep that app.
+# com.xiaomi.mitv.appstore is deliberately NOT here: the stock "我的应用" page errors without it.
+
+com.xiaomi.mimusic                 # Mi Music
+com.xiaomi.tweather                # weather
+com.xiaomi.mitv.calendar           # calendar
+com.mitv.gallery                   # photo gallery
+com.xiaomi.tv.gallery              # "fashion" wallpaper feed
+com.xiaomi.smarthome.tv            # Mi Home / smart home panel
+com.xiaomi.mibox.gamecenter        # game center
+com.xiaomi.gamecenter.sdk.service.mibox  # game center SDK service
+com.mipay.wallet.tv                # Mi Pay wallet
+com.xiaomi.mitv.pay                # Mi Pay
+com.xiaomi.mitv.payment            # Mi Pay service
+com.xiaomi.mitv.tvmanager          # "TV Manager" cleaner
+com.xiaomi.mitv.mediaexplorer      # Xiaomi media/USB file browser
+com.xiaomi.mitv.download           # Xiaomi download manager UI
+com.baidu.tv.download              # Baidu Cloud
+com.android.browser                # AOSP browser
+com.android.soundrecorder          # sound recorder
+com.jiajia.yundonghui.mitv         # fitness app
+com.xiaomi.mitv.handbook           # user handbook wrapper
+com.xiaomi.mitv.handbook.zh.cn     # user handbook (zh-CN)
+com.xiaomi.voicecontrol            # Xiaomi voice assistant (remote voice key loses search)
+com.xiaomi.mibox.lockscreen        # Mi Box lockscreen
+com.xiaomi.mitv.media              # Mi media/video app
+com.mitv.videoplayer               # stock stream player (Bestv/Funshion)
+com.mitv.mivideoplayer             # stock Mi video player
+com.duokan.application.photoviewer # photo slideshow screensaver

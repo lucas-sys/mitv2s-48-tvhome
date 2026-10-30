@@ -1,0 +1,14 @@
+# Xiaomi MiTV2S-48 (gladiator), Android 5.1.1, build 7.6.20.2492, China PatchWall
+# Batch 3: Xiaomi account/cloud leftovers plus an unused IME.
+#
+# Apply: TV_HOST=<tv ip> scripts/hide.sh lists/03-account-cloud.txt
+# Undo:  TV_HOST=<tv ip> scripts/unhide.sh lists/03-account-cloud.txt
+#
+# Neither 云视听小电视 nor 影视仓 signs in with a Xiaomi account.
+# com.xiaomi.mitv.tvpush.tvpushservice stays enabled on purpose: it carries the installer allowlist;
+# its marketing notifications are denied with scripts/settings.sh instead.
+
+com.xiaomi.account                 # Xiaomi account
+com.xiaomi.account.auth            # Xiaomi account third-party sign-in
+com.miui.cloudservice              # Mi Cloud push service
+com.baidu.input                    # unused IME; Sogou is the only enabled one

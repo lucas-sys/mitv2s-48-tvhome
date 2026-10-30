@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One wallpaper thumbnail: the picture, its name under it, a white rim while focused or chosen. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/wallpaper_item"
+    android:focusable="false"
+    android:orientation="vertical"
+    android:padding="6dp">
+
+    <ImageView
+        android:id="@+id/wallpaperThumb"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:adjustViewBounds="false"
+        android:contentDescription="@string/wallpaper_label"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/wallpaperName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="#99FFFFFF"
+        android:textSize="13sp" />
+</LinearLayout>

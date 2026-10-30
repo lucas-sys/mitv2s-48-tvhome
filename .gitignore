@@ -1,0 +1,20 @@
+# Gradle / Android build output
+launcher/.gradle/
+launcher/build/
+launcher/app/build/
+launcher/local.properties
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# logs and scratch files
+*.log
+.DS_Store
+.idea/
+*.iml
+
+# Never commit device data: IPs, Wi-Fi names, serial numbers, backups
+backup/
+shots/
+work/

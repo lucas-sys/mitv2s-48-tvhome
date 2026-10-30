@@ -1,0 +1,134 @@
+package com.gathin.tvhome;
+
+import android.Manifest;
+import android.accessibilityservice.AccessibilityService;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.PowerManager;
+import android.os.UserManager;
+import android.provider.Settings;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Keeps {@link HomeKeyService} on the accessibility list, the way a China-market TV needs it.
+ *
+ * TCL and Xiaomi start their own launcher at boot and force-stop a third-party one, which also
+ * drops its accessibility service. {@link GuardRevival} is bound again by the system afterwards
+ * and calls {@link #ensureHomeKey}. With {@code guard_off_in_standby} the service removes itself
+ * while the screen is off: on a TCL tc8000 the power key never woke the set while an accessibility
+ * service of this app stayed bound.
+ */
+final class GuardKeep {
+    static final String ACTION = "com.gathin.tvhome.GUARD";
+    private static final String PREFS = "guard";
+    private static final String KEY_OFF = "off_in_standby";
+
+    private static BroadcastReceiver screenOn;
+
+    private GuardKeep() {
+    }
+
+    static boolean offInStandby(Context context) {
+        if (userLocked(context)) return false;
+        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_OFF, false);
+    }
+
+    /**
+     * True while the user is still locked, so credential-protected storage cannot be read yet. Both
+     * {@code getSystemService(Class)} and {@link UserManager#isUserUnlocked()} are newer than API 22: Android 5.1
+     * has no direct-boot user, so a process running there can always read its own storage.
+     */
+    static boolean userLocked(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return false;
+        UserManager users = (UserManager) context.getSystemService(Context.USER_SERVICE);
+        return users != null && !users.isUserUnlocked();
+    }
+
+    /**
+     * WRITE_SECURE_SETTINGS, granted with pm grant by the installer. {@code Context#checkSelfPermission} is API 23;
+     * before it, PackageManager holds the same answer.
+     */
+    static boolean canWriteSecureSettings(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
+                    == PackageManager.PERMISSION_GRANTED;
+        }
+        return context.getPackageManager().checkPermission(Manifest.permission.WRITE_SECURE_SETTINGS,
+                context.getPackageName()) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    static void setOffInStandby(Context context, boolean off) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_OFF, off).commit();
+    }
+
+    /** Puts HomeKeyService back on the enabled list when standby exit is opted in. Other services stay. */
+    static void ensureHomeKey(Context context) {
+        // The helper may already be bound. Arming only inside onServiceConnected misses an opt-in
+        // that arrives after that, so the first screen-off does nothing (Philips 65PUS8102).
+        HomeKeyService.applyStandbyOptIn();
+        if (!offInStandby(context)) return;
+        if (!canWriteSecureSettings(context)) return;
+        PowerManager power = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        // Still off: binding the helper again would sit on the power key. Wait for the screen.
+        if (power != null && !power.isInteractive()) {
+            watchScreenOn(context.getApplicationContext());
+            return;
+        }
+        try {
+            ComponentName mine = new ComponentName(context, HomeKeyService.class);
+            String list = Settings.Secure.getString(context.getContentResolver(),
+                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+            List<String> entries = new ArrayList<>();
+            boolean found = false;
+            if (list != null && !list.equals("null")) {
+                for (String entry : list.split(":")) {
+                    if (entry.isEmpty()) continue;
+                    ComponentName name = ComponentName.unflattenFromString(entry);
+                    if (mine.equals(name)) found = true;
+                    entries.add(entry);
+                }
+            }
+            if (!found) {
+                entries.add(mine.flattenToShortString());
+                Settings.Secure.putString(context.getContentResolver(),
+                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, String.join(":", entries));
+            }
+            Settings.Secure.putInt(context.getContentResolver(), Settings.Secure.ACCESSIBILITY_ENABLED, 1);
+        } catch (RuntimeException ignored) {
+            // The settings are the system's; a refusal leaves the helper as it was.
+        }
+    }
+
+    /** Drops the service from the list and puts it back on the next SCREEN_ON. The process has to stay up. */
+    static void stepOut(AccessibilityService service) {
+        watchScreenOn(service.getApplicationContext());
+        // AccessibilityService#disableSelf is API 24: on 5.1 the helper stays where it is, and the screen-on
+        // receiver restores the opt-in when the screen comes back, which is where ensureHomeKey leaves it too.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) service.disableSelf();
+    }
+
+    private static void watchScreenOn(Context app) {
+        if (screenOn != null) return;
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (screenOn != this) return;
+                screenOn = null;
+                try {
+                    app.unregisterReceiver(this);
+                } catch (RuntimeException ignored) {
+                }
+                ensureHomeKey(app);
+            }
+        };
+        screenOn = receiver;
+        app.registerReceiver(receiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
+    }
+}
