@@ -1,5 +1,7 @@
 # MiTV2S-48 TV Home · Android 5.1 (API 22) 版 tvOS 风格桌面
 
+简体中文 | [English](README.en.md)
+
 把 [CleanYourTV](https://github.com/Gathin23/cleanyourtv) 的 tvOS 风格 launcher **移植到 Android 5.1 老电视**，
 并记录一台小米电视 2S 48 的完整改造方法：系统精简（`pm hide`，可逆）、桌面接管、壁纸、设置入口。
 
@@ -45,7 +47,9 @@ export ANDROID_HOME=/path/to/android-sdk
 # APK: app/build/outputs/apk/release/app-release.apk（约 1.9 MB，debug 签名，仅供 sideload）
 ```
 
-> 仓库**不提供预编译 APK**（与上游习惯一致）：请按上面的步骤自己构建，再装到自己的电视上。
+> 仓库本身只放源码（不提交二进制）；**预编译 APK 放在
+> [Releases](https://github.com/lucas-sys/mitv2s-48-tvhome/releases) 页面**（由本仓库源码构建、debug 签名），
+> 想省事可以直接下载。
 
 ## 安装与接管 Home
 
